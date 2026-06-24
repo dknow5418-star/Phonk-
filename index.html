@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Phonk Meme Remix Maker</title>
+    <style>
+        :root {
+            --bg-color: #080808;
+            --panel-color: #121216;
+            --accent-neon: #ff0055;
+            --accent-cyan: #00f3ff;
+            --accent-yellow: #ffe600;
+            --text-color: #e0e0e6;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--panel-color);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.25);
+            border: 1px solid rgba(255, 0, 85, 0.4);
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 12px var(--accent-cyan);
+            margin-top: 0;
+            font-size: 22px;
+            letter-spacing: 2px;
+            border-bottom: 2px dashed rgba(0, 243, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-neon);
+        }
+        h3 { margin-top: 0; color: var(--accent-neon); font-size: 14px; letter-spacing: 1px; }
+        
+        /* Proper Click to Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--accent-cyan);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(0, 243, 255, 0.03);
+            transition: 0.2s;
+        }
+        .upload-zone:active { background: rgba(0, 243, 255, 0.1); }
+        
+        .btn {
+            background: linear-gradient(45deg, var(--accent-neon), #b3003b);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(255, 0, 85, 0.3);
+        }
+        .btn:disabled {
+            background: #222 !important;
+            color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .pad-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .pad {
+            background: #16161e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 18px 5px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        /* VU Flash Feedback with Glow */
+        .pad:active {
+            background: var(--accent-neon);
+            color: white;
+            border-color: #fff;
+            box-shadow: 0 0 15px var(--accent-neon);
+        }
+        .pad.cowbell { border-color: rgba(0, 243, 255, 0.4); color: var(--accent-cyan); }
+        .pad.cowbell:active {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 15px var(--accent-cyan);
+            color: black;
+        }
+        .status-bar {
+            text-align: center;
+            font-size: 12px;
+            color: var(--accent-yellow);
+            margin-top: 8px;
+        }
+        label { display: block; font-size: 12px; margin-bottom: 5px; color: #888; }
+        input[type="range"] { width: 100%; margin-bottom: 10px; accent-color: var(--accent-neon); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PHONK REMIXER 👊🏻🐺</h1>
+    
+    <!-- Upload Zone -->
+    <div class="section">
+        <h3>[01] LOAD MEME SOURCE</h3>
+        <div class="upload-zone" id="drop-zone">
+            <span id="upload-text">🎵 TAP TO CHOOSE MEME AUDIO/VIDEO</span>
+            <input type="file" id="meme-file" accept="audio/*,video/*" style="display:none;">
+        </div>
+        <div id="status" class="status-bar">STATUS: IDLE</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="section">
+        <h3>[02] TRANSPORT CONTROL</h3>
+        <div class="controls-grid">
+            <button class="btn" id="play-btn" disabled>▶ PLAY MEME</button>
+            <button class="btn" id="stop-btn" style="background:#333; box-shadow:none;" disabled>⏹ STOP</button>
+        </div>
+    </div>
+
+    <!-- Pads -->
+    <div class="section">
+        <h3>[03] MPC RHYTHM PADS</h3>
+        <label>DISTORTION (CRUNCH) <span id="dist-val">40%</span></label>
+        <input type="range" id="dist-slider" min="0" max="100" value="40">
+        
+        <label>DRUMS & 808 BASS</label>
+        <div class="pad-grid">
+            <div class="pad" id="p-808-1">808 LOW</div>
+            <div class="pad" id="p-808-2">808 KICK</div>
+            <div class="pad" id="p-snare">SNARE</div>
+            <div class="pad" id="p-clap">CLAP</div>
+        </div>
+
+        <label style="margin-top:12px;">PHONK COWBELLS</label>
+        <div class="pad-grid">
+            <div class="pad cowbell" id="p-cb1">NOTE 1</div>
+            <div class="pad cowbell" id="p-cb2">NOTE 2</div>
+            <div class="pad cowbell" id="p-cb3">NOTE 3</div>
+            <div class="pad cowbell" id="p-cb4">NOTE 4</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Fail-Safe Error Guard
+    window.onerror = function() { return true; };
+
+    let audioCtx = null;
+    let memeBuffer = null;
+    let memeSource = null;
+
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('meme-file');
+    const statusText = document.getElementById('status');
+    const playBtn = document.getElementById('play-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const distSlider = document.getElementById('dist-slider');
+    const distVal = document.getElementById('dist-val');
+
+    distSlider.oninput = function() { distVal.innerText = this.value + "%"; };
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    dropZone.onclick = () => fileInput.click();
+
+    fileInput.onchange = function(e) {
+        initAudio();
+        const file = e.target.files[0];
+        if (!file) return;
+
+        statusText.innerText = "STATUS: LOADING...";
+        document.getElementById('upload-text').innerText = "📄 " + file.name.toUpperCase();
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            audioCtx.decodeAudioData(evt.target.result, function(buffer) {
+                memeBuffer = buffer;
+                statusText.innerText = "STATUS: READY TO PHONK";
+                playBtn.disabled = false;
+            }, function() {
+                statusText.innerText = "STATUS: ERROR LOADING FILE";
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
+    playBtn.onclick = function() {
+        initAudio();
+        if (!memeBuffer) return;
+        stopMemeTrack();
+        
+        memeSource = audioCtx.createBufferSource();
+        memeSource.buffer = memeBuffer;
+        memeSource.connect(audioCtx.destination);
+        memeSource.start(0);
+        
+        statusText.innerText = "STATUS: PLAYING";
+        playBtn.disabled = true;
+        stopBtn.disabled = false;
+        
+        memeSource.onended = () => {
+            statusText.innerText = "STATUS: READY TO PHONK";
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+        };
+    };
+
+    stopBtn.onclick = stopMemeTrack;
+
+    function stopMemeTrack() {
+        if (memeSource) {
+            try { memeSource.stop(); } catch(e) {}
+            memeSource = null;
+        }
+        statusText.innerText = "STATUS: STOPPED / READY";
+        playBtn.disabled = false;
+        stopBtn.disabled = true;
+    }
+
+    // Audio Engine Synthesizers
+    function getDistNode() {
+        const amt = parseInt(distSlider.value) * 2;
+        const dist = audioCtx.createWaveShaper();
+        let curve = new Float32Array(44100), i = 0, x;
+        for ( ; i < 44100; ++i ) {
+            x = (i * 2) / 44100 - 1;
+            curve[i] = ((3 + amt) * x) / (Math.PI + amt * Math.abs(x));
+        }
+        dist.curve = curve;
+        dist.oversample = '4x';
+        return dist;
+    }
+
+    function synth808(freq, duration) {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const dist = getDistNode();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq / 2, audioCtx.currentTime + duration);
+
+        gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        osc.connect(dist);
+        dist.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function synthCowbell(pitch) {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+        filter.type = 'bandpass';
+        filter.frequency.value = pitch * 1.5;
+
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+        osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function synthSnare() {
+        initAudio();
+        const bufferSize = audioCtx.sampleRate * 0.15;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'highpass'; filter.frequency.value = 1200;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+        noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        noise.start();
+    }
+
+    // Touch Event Listeners for Mobile
+    document.getElementById('p-808-1').addEventListener('pointerdown', () => synth808(55, 0.5));
+    document.getElementById('p-808-2').addEventListener('pointerdown', () => synth808(75, 0.25));
+    document.getElementById('p-snare').addEventListener('pointerdown', synthSnare);
+    document.getElementById('p-clap').addEventListener('pointerdown', () => synth808(130, 0.08));
+    document.getElementById('p-cb1').addEventListener('pointerdown', () => synthCowbell(580));
+    document.getElementById('p-cb2').addEventListener('pointerdown', () => synthCowbell(680));
+    document.getElementById('p-cb3').addEventListener('pointerdown', () => synthCowbell(780));
+    document.getElementById('p-cb4').addEventListener('pointerdown', () => synthCowbell(880));
+</script>
+</body>
+</html>
